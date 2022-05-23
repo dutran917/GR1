@@ -1,0 +1,3 @@
+<personFlow begin="1"impatience=0.9end=2144345>
+	<walk from=E10to=-E10/>
+</personFlow> 

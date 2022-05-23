@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <bits/stdc++.h>
 #include <fstream>
+#define SIZE_OF_ARRAY(array) (sizeof(array) / sizeof(array[0]))
 using namespace std;
 
 class PersonFlow
@@ -20,6 +21,17 @@ public:             // Access specifier
     { // Constructor with parameters
         from[0] = x;
         to[0] = y;
+        begin = a;
+        end = b;
+    }
+    PersonFlow(string x, string y, string x1, string y1, string x2, string y2, int a, int b)
+    { // Constructor with parameters
+        from[0] = x;
+        to[0] = y;
+        from[1] = x1;
+        to[1] = y1;
+        from[2] = x2;
+        to[2] = y2;
         begin = a;
         end = b;
     }
@@ -71,7 +83,7 @@ int *turkeyWFunc(int i, float alpha, int duration)
     // set the seed
     if ((alpha <= 0 || alpha >= 1) || (duration % 3600 != 0 || duration % 600 != 0) || (i < 0 || i > 6))
     {
-        return NULL;
+        return r;
     }
     switch (i)
     {
@@ -123,9 +135,18 @@ int *turkeyWFunc(int i, float alpha, int duration)
     return r;
 }
 
+int chanle(int k)
+{
+    if (k % 2 == 0)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 vector<vector<int>> generateWholeDay(int inc, int N, string center, string direction)
 {
-    int arr[2 * N][7];
+    int arr[7][2 * N];
     float alpha[7];
     int duration = 3600;
     if (inc != INT_MAX)
@@ -323,16 +344,22 @@ vector<vector<int>> generateWholeDay(int inc, int N, string center, string direc
         float deltaT = (float)alpha[i] * (duration - 1) / (2 * N);
         arr[i][0] = *(turkey_ + 0);
         arr[i][1] = *(turkey_ + 1);
-        for (int k = 0; k < N; k++)
+        for (int k = 2; k < 2 * N; k++)
         {
-            arr[i][2 * k] = arr[i][0] + k * ceil(deltaT);
-            arr[i][2 * k + 1] = arr[i][1] - k * ceil(deltaT);
+            if (chanle(k))
+            {
+                arr[i][k] = arr[i][0] + k * ceil(deltaT);
+            }
+            else
+            {
+                arr[i][k] = arr[i][1] - k * ceil(deltaT);
+            }
         }
     }
-    vector<vector<int>> data(2 * N, vector<int>(7, 0));
-    for (int i = 0; i < 2 * N; i++)
+    vector<vector<int>> data(7, vector<int>(2 * N, 0));
+    for (int i = 0; i < 7; i++)
     {
-        for (int j = 0; j < 7; j++)
+        for (int j = 0; j < 2 * N; j++)
         {
             data[i][j] = arr[i][j];
         }
@@ -357,7 +384,7 @@ vector<string> locate()
     string index = to_string((rand() % 100) + 1);
     string from = "E" + index;
     string to = "-E" + index;
-    int temp = rand() % 160;
+    int temp = rand() % 10 + 1;
     string N = to_string(temp);
     if (direction == "North" || direction == "South")
     {
@@ -390,7 +417,7 @@ vector<string> locate()
             from2,
             to2,
             N};
-        assert(temp * locate.size() - 3 < 1000);
+        assert(temp * (locate.size() - 3) < 1000);
         return locate;
     }
     else
@@ -401,7 +428,7 @@ vector<string> locate()
             from,
             to,
             N};
-        assert(temp * locate.size() - 3 < 1000);
+        assert(temp * (locate.size() - 3) < 1000);
         return locate;
     }
 }
@@ -414,7 +441,7 @@ void OutVector(vector<std::vector<int>> arr)
     {
         for (int j = 0; j < columns; j++)
         {
-            cout << setw(13) << arr[i][j];
+            cout << setw(7) << arr[i][j];
         }
         cout << endl;
     }
@@ -425,6 +452,7 @@ int main()
 
     // a pointer to an int.
     int *p;
+    cout << "dMMMMMMMMM" << endl;
     srand(time(NULL));
     p = turkeyWFunc(1, 0.6, 7200);
     PersonFlow test("E10", "-E10", 1, 2144345);
@@ -436,6 +464,55 @@ int main()
         return 1;
     }
     char x = 34;
+    vector<PersonFlow> persons;
+    // vector<string> lc;
+    // vector<vector<int>> generate;
+    // OutVector(generate);
+    for (int i = 0; i < 20; i++)
+    {
+        vector<string> lc = locate();
+        int N = stoi(lc.back());
+        vector<vector<int>> generate = generateWholeDay(INT_MAX, N, lc[0], lc[1]);
+        OutVector(generate);
+        int N1 = lc.size();
+        int N2 = generate.size();
+        if (lc.size() == 5)
+        {
+            for (int j = 0; j < 7; j++)
+            {
+                PersonFlow p(lc[2], lc[3], generate[j][0], generate[j][1]);
+                persons.push_back(p);
+            }
+        }
+        else
+        {
+            for (int j = 0; j < 7; j++)
+            {
+                PersonFlow p(lc[2], lc[3], lc[4], lc[5], lc[6], lc[7], generate[j][0], generate[j][1]);
+                persons.push_back(p);
+            }
+        }
+        int P = persons.size();
+        // assert(P <= N1 * N2 * 7 && P >= N1 * N2);
+    }
 
+    for (int i = 0; i < persons.size(); i++)
+    {
+        ofs << "<personFlow begin=" << x << persons[i].begin << x << " id=" << x << i << x << " impatience=" << x << persons[i].impatience << x << " end=" << x << persons[i].end << x << " period=" << x << 1 << x << ">\n";
+        for (int j = 0; j < SIZE_OF_ARRAY(persons[i].from); j++)
+        {
+            if (persons[i].from[j].length() > 0)
+            {
+                ofs << "\t<walk from=" << x << persons[i].from[j] << x << " to=" << x << persons[i].to[j] << x << "/>\n";
+            }
+        }
+        ofs << "</personFlow>\n";
+    }
+
+    // for (int i = 0; i < persons.size(); i++)
+    // {
+    //     ofs << "dmm: " << persons[i].begin << "loz: " << persons[i].end << endl;
+    // }
+    ofs.close();
     return 0;
 }

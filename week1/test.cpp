@@ -332,10 +332,10 @@ int main()
     // Phan d
 
     GLane *allLanes[2 * max];
-    Junction *allJuncs[j_max * 2];
+    Junction *allJuncs[j_max];
     for (string &x : lanes)
     {
-        // GLane *test_gl[16];
+
         Zone **zone;
         int from[3];
         int *p = getFromArrAllLanes(x, max);
@@ -344,20 +344,23 @@ int main()
             from[i] = *(p + i);
         }
         allLanes[getIndexLanes(x)] = new GLane(zone, getLengthLanes(x), getNumberLanes(x), getStrIdAllLanes(x), from, getLastLengthAllLanes(x));
-        if (getIndexJunc(x) < j_max)
-        {
-            cout << getIndexJunc(x) << endl;
-        }
+    }
+
+    for (string &x : lanes)
+    {
         vector<string> juncs_ = findJunc(x, allInfo);
+        GLane *test_gl[16];
+        int index_junc;
         if (juncs_.size() != 0)
         {
+            index_junc = getIndexJunc(x);
             for (string &jc : juncs_)
             {
                 Zone **zone;
                 int index = stoi(split(jc, "_")[1]);
                 double length = stod(split(jc, " ")[1]);
                 int number = ceil(length / 1.1);
-                string strId = x.substr(0, split(jc, " ")[0].rfind("_"));
+                string strId = jc.substr(0, split(jc, " ")[0].rfind("_"));
                 int from[3] = {-1, -1, -1};
                 double lastLength = abs(length - 1.1 * number);
                 if (jc.find("E") != string::npos)
@@ -383,10 +386,8 @@ int main()
                 test_gl[index] = new GLane(zone, length, number, strId, from, lastLength);
             }
         }
-        cout << test_gl[1]->strId << endl;
-        if (getIndexJunc(x) < j_max)
-            allJuncs[getIndexJunc(x)] = new Junction(test_gl);
+        allJuncs[index_junc] = new Junction(test_gl);
     }
-    cout << allLanes[123]->strId << endl;
+
     return 0;
 }

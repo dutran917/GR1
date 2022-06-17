@@ -4,6 +4,7 @@
 #include <math.h>
 #include <unordered_map>
 #include <vector>
+#include <assert.h>
 #include <iterator>
 using namespace std;
 
@@ -53,7 +54,7 @@ public:
 class Searching
 {
 public:
-    void findPaths(GLane **allLanes, int NA, Junction **allJuncs, int NJ, string src, string dst)
+    vector<string> findPaths(GLane **allLanes, int NA, Junction **allJuncs, int NJ, string src, string dst)
     {
         int dem1 = 0;
         int dem2 = 0;
@@ -122,10 +123,14 @@ public:
                                 }
                             }
                         }
-                        cout << "OK" << endl;
                         while (list[0] != dst)
                         {
                             list2.push_back(list[0]);
+                            // if (list2.size() > max)
+                            // {
+                            //     cout << "loi";
+                            //     break;
+                            // }
                             list.erase(list.begin() + 0);
                             int index = list2.size() - 1;
                             if (list2[index][0] == '-' || list2[index][0] == 'E')
@@ -223,8 +228,8 @@ public:
                             }
                             if (list.size() == 0)
                             {
-                                cout << "ko tim dc" << endl;
-                                // return empty;
+                                // cout << "ko tim dc" << endl;
+                                return empty;
                             }
                         }
                         break;
@@ -234,8 +239,8 @@ public:
         }
         else
         {
-            cout << "ko tim dc???" << endl;
-            // return empty;
+            // cout << "Couldnt find the path ";
+            return empty;
         }
         list2.push_back(dst);
         list2.insert(list2.begin() + 0, src);
@@ -247,12 +252,13 @@ public:
                 list2.erase(list2.begin() + i);
             }
         }
-        for (string &x : list2)
-        {
-            if (x[0] != ':')
-                cout << x << " ";
-        }
-        // return list2;
+        // cout << "Path from " << list2[0] << " to " << list2[list2.size() - 1] << " is:" << endl;
+        // for (string &x : list2)
+        // {
+        //     if (x[0] != ':')
+        //         cout << x << " ";
+        // }
+        return list2;
     }
 };
 
@@ -441,12 +447,26 @@ int main()
     vector<string> lanes;
     vector<string> juncs;
     vector<string> allInfo;
+    vector<string> test1{"E336", "E337", "E338", "E339", "E340", "E341", "-E479", "-E478", "E386", "E387"};
+    vector<string> test2{"-E154", "-E153", "E95", "E96", "E97", "E98", "E435", "E434"};
+    vector<string> test3{"E421", "E324", "E325", "E326", "E327", "E328", "E329", "E330", "E457", "E458"};
+    vector<string> test4{"E267", "E268", "E269", "E270", "E271", "E272", "E273", "E274", "E275", "E276"};
+    vector<string> test5{"-E160", "-E159", "-E158", "-E157", "-E156", "-E155", "-E154", "-E153", "E95", "E96", "E97", "E98", "-E435", "-E434", "-E433", "-E432", "-E431"};
+    vector<vector<string>>
+        testcase{test1, test2, test3, test4, test5};
+    // string tempArr[5] = {
+    //     "Path from E336 to E387 is:\nE336 E337 E338 E339 E340 E341 -E479 -E478 E386 E387",
+    //     "Path from -E154 to E434 is:\n-E154 -E153 E95 E96 E97 E98 E435 E434",
+    //     "Path from E421 to E458 is:\nE421 E324 E325 E326 E327 E328 E329 E330 E457 E458",
+    //     "Path from E267 to E276 is:\nE267 E268 E269 E270 E271 E272 E273 E274 E275 E276 ",
+    //     "Path from -E160 to -E431 is:\n-E160 -E159 -E158 -E157 -E156 -E155 -E154 -E153 E95 E96 E97 E98 -E435 -E434 -E433 -E432 -E431 ",
+    // };
     string line;
     int max = 0;
     int j_max = 0;
     vector<int> findMax;
     vector<int> findJMax;
-    cout << "moi ban nhap ten File: (Press Enter to input.txt) ";
+    cout << "Please enter the File name: (Press Enter to input.txt) ";
     string s;
     if (cin.get() == '\n')
     {
@@ -465,13 +485,7 @@ int main()
              << s << "'" << endl;
         return EXIT_FAILURE;
     }
-    cout << "moi ban nhap src: ";
-    string src;
 
-    cin >> src;
-    cout << "moi ban nhap dst: ";
-    string dst;
-    cin >> dst;
     while (getline(input_file, line))
     {
         allInfo.push_back(line);
@@ -588,8 +602,95 @@ int main()
         }
     }
 
-    Searching newSearch;
+    // TEST CASE
+    for (int i = 0; i < testcase.size(); i++)
+    {
+        cout << "TEST CASE " << i + 1 << endl;
+        cout << "Path from " << testcase[i][0] << " to " << testcase[i][testcase[i].size() - 1] << endl;
+        for (string &x : testcase[i])
+        {
+            cout << x << " ";
+        }
+        cout << endl;
+        cout << "Enter src and dst same as testcase to test!" << endl;
+        cout << "Please enter the src: ";
+        string src;
+        cin >> src;
+        if (src[0] == '-')
+        {
+            int index_lane = stoi(src.substr(2));
+            if (index_lane < 0 || index_lane > max)
+            {
+                assert(0);
+            }
+        }
+        else if (src[0] == 'E')
+        {
+            int index_lane = stoi(src.substr(1));
+            if (index_lane < 0 || index_lane > max)
+            {
+                assert(0);
+            }
+        }
+        else
+        {
+            assert(src[0] == '-' || src[0] == 'E');
+        }
+        cout << "Please enter the dst: ";
+        string dst;
+        cin >> dst;
+        if (dst[0] == '-')
+        {
+            int index_lane = stoi(dst.substr(2));
+            if (index_lane < 0 || index_lane > max)
+            {
+                assert(0);
+            }
+        }
+        else if (dst[0] == 'E')
+        {
+            int index_lane = stoi(dst.substr(1));
+            if (index_lane < 0 || index_lane > max)
+            {
+                assert(0);
+            }
+        }
+        else
+        {
+            assert(dst[0] == '-' || dst[0] == 'E');
+        }
+        Searching newSearch;
 
-    newSearch.findPaths(allLanes, max * 2, allJuncs, j_max, src, dst);
+        vector<string> path = newSearch.findPaths(allLanes, max * 2, allJuncs, j_max, src, dst);
+        vector<string> test_path;
+        if (path.size() == 0)
+        {
+            cout << "couldnt find the path" << endl;
+        }
+        else
+        {
+
+            for (string &x : path)
+            {
+                if (x[0] != ':')
+                {
+                    cout << x << " ";
+                    test_path.push_back(x);
+                }
+            }
+        }
+        cout << endl;
+        if (test_path == testcase[i])
+        {
+            cout << "TEST OK" << endl;
+        }
+        else
+        {
+            cout << "NOT OK" << endl;
+        }
+        cout << endl;
+        cout << endl;
+    }
+
     return 0;
 }
